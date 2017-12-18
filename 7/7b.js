@@ -17,11 +17,19 @@ var getRoot = (arr) => {
 }
 
 var getChildrenFromNode = (node, rest) => {
-    node.children = rest
-        .filter(n => n.hasChildren)
-        .filter(n => node.children.indexOf(n.id) > -1);
+    if (node.hasChildren) {
+        var children = rest.filter(n => node.children.indexOf(n.id) > -1);
 
-    node.children.forEach(n => getChildrenFromNode(n, rest));
+        var childrenWeight = 0;
+        children.forEach(child => childrenWeight += child.weight);
+
+        node.isBalanced = childrenWeight == node.weight;
+        children.forEach(n => n.level = node.level + 1);
+        children.forEach(n => getChildrenFromNode(n, rest));
+    } else {
+        node.isBalanced = true;
+    }
+
 }
 
 
@@ -38,7 +46,8 @@ var doStuff = (data) => {
         });
 
     var root = getRoot(res);
-    var sorted = getChildrenFromNode(root, res);
-    console.log(root);
-
+    root.level = 1;
+    getChildrenFromNode(root, res);
+    var res2 = res.sort((a, b) => b.level - a.level);
+    console.log(res2);
 }
